@@ -7,6 +7,8 @@ export interface Player {
 
 export interface GameStore {
   players: Player[];
+  hasGameStarted: boolean;
+  setGameState: (started: boolean) => void;
   addPlayer: (player: Player) => void;
   removePlayer: (id: number) => void;
   updatePlayer: (id: number, player: Player) => void;
@@ -14,6 +16,9 @@ export interface GameStore {
 
 export const useGameStore = create<GameStore>((set) => ({
   players: [],
+  hasGameStarted: false,
+  setGameState: (started: boolean) =>
+    set((state) => ({ hasGameStarted: started })),
   addPlayer: (player: Player) =>
     set((state) => ({ players: [...state.players, player] })),
   removePlayer: (id: number) =>

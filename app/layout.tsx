@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Gang Of Four",
+  title: "Gang of Four",
   description:
     "Replace the paper and keep the score of the popular game gang of four",
 };
