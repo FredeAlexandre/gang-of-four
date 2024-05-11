@@ -23,12 +23,20 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-dvh bg-background font-sans antialiased",
           inter.variable
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <div className="fixed bottom-0 left-1/2 -translate-y-1/2 bg-primary text-primary-foreground p-1 rounded text-xs font-bold">
+            <div className="sm:hidden">xs</div>
+            <div className="hidden sm:inline md:hidden">xs</div>
+            <div className="hidden md:inline lg:hidden">md</div>
+            <div className="hidden lg:inline xl:hidden">lg</div>
+            <div className="hidden xl:inline 2xl:hidden">xl</div>
+            <div className="hidden 2xl:inline">2xl</div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

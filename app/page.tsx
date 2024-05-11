@@ -16,8 +16,8 @@ export default function Home() {
   const canStart = players.length >= 4;
 
   return (
-    <div className="flex">
-      <div className="h-dvh w-full sm:w-[30rem] sm:border-r sm:p-4 p-2">
+    <div className="flex flex-wrap">
+      <div className="h-dvh lg:w-[24rem] w-full sm:border-r p-4">
         <div className="flex justify-between items-center">
           <div>Players</div>
         </div>
@@ -42,8 +42,8 @@ export default function Home() {
           </Button>
         )}
       </div>
-      <div className="w-full overflow-y-auto">
-        <div className="sm:h-dvh flex items-center justify-center">
+      <div className="lg:grow lg:w-auto w-full overflow-y-auto">
+        <div className="min-h-dvh flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
             <div>
               {canStart ? (
