@@ -17,30 +17,63 @@ export default function Home() {
 
   return (
     <div className="flex flex-wrap">
-      <div className="h-dvh lg:w-[24rem] w-full sm:border-r p-4">
-        <div className="flex justify-between items-center">
-          <div>Players</div>
+      <div className="h-dvh lg:w-[24rem] w-full sm:border-r p-4 space-y-4">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div>Players</div>
+          </div>
+          <ul className="divide-y w-full">
+            {players.map((player, id) => (
+              <PlayerItem key={id} player={player} id={id} />
+            ))}
+          </ul>
+          {hasGameStarted ? (
+            <></>
+          ) : (
+            <Button
+              onClick={() => {
+                addPlayer({
+                  name: "Player " + (players.length + 1),
+                  score: 0,
+                });
+              }}
+              className="w-full"
+            >
+              Add Player
+            </Button>
+          )}
         </div>
-        <ul className="divide-y w-full pt-2">
-          {players.map((player, id) => (
-            <PlayerItem key={id} player={player} id={id} />
-          ))}
-        </ul>
-        {hasGameStarted ? (
-          <></>
-        ) : (
-          <Button
-            onClick={() => {
-              addPlayer({
-                name: "Player " + (players.length + 1),
-                score: 0,
-              });
-            }}
-            className="w-full"
-          >
-            Add Player
-          </Button>
-        )}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div>Round</div>
+          </div>
+          {hasGameStarted ? (
+            <div className="flex flex-col items-center py-4 text-2xl font-semibold">
+              3
+            </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-1">
+              {canStart ? (
+                <></>
+              ) : (
+                <div>
+                  <span className="font-bold">
+                    {4 - players.length} more players
+                  </span>{" "}
+                  Missing
+                </div>
+              )}
+              <Button
+                disabled={!canStart}
+                onClick={() => {
+                  setGameState(true);
+                }}
+              >
+                Start Game
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="lg:grow lg:w-auto w-full overflow-y-auto">
         <div className="min-h-dvh flex items-center justify-center">
@@ -54,10 +87,9 @@ export default function Home() {
                   <span className="font-bold px-1">
                     {4 - players.length} more players
                   </span>{" "}
-                  to be
+                  to be able to start the game
                 </>
               )}
-              able to start the game
             </div>
             <Button
               disabled={!canStart}
