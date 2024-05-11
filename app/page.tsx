@@ -1,16 +1,46 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Player, useGameStore } from "@/stores/useGameStore";
-import { Check, Pencil, Trash } from "lucide-react";
+import {
+  HistoryEventRecord,
+  HistoryRecord,
+  Player,
+  useGameStore,
+} from "@/stores/useGameStore";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { Check, CheckIcon, Pencil, Trash } from "lucide-react";
 import React, { useState } from "react";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export default function Home() {
   const players = useGameStore((state) => state.players);
   const hasGameStarted = useGameStore((state) => state.hasGameStarted);
-  const setGameState = useGameStore((state) => state.setGameState);
+  const start = useGameStore((state) => state.start);
   const addPlayer = useGameStore((state) => state.addPlayer);
 
   const canStart = players.length >= 4;
@@ -21,6 +51,18 @@ export default function Home() {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <div>Players</div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <InfoCircledIcon className="w-5 h-(" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>You need to add the player clockwise</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <ul className="divide-y w-full">
             {players.map((player, id) => (
@@ -66,7 +108,7 @@ export default function Home() {
               <Button
                 disabled={!canStart}
                 onClick={() => {
-                  setGameState(true);
+                  start();
                 }}
               >
                 Start Game
@@ -75,33 +117,113 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="lg:grow lg:w-auto w-full overflow-y-auto">
-        <div className="min-h-dvh flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2">
-            <div>
-              {canStart ? (
-                <>You can now add more player or start a game !</>
-              ) : (
-                <>
-                  Add{" "}
-                  <span className="font-bold px-1">
-                    {4 - players.length} more players
-                  </span>{" "}
-                  to be able to start the game
-                </>
-              )}
+      <div className="lg:grow lg:w-auto w-full overflow-y-auto h-dvh">
+        {hasGameStarted ? (
+          <GameHistory />
+        ) : (
+          <div className="min-h-dvh flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <div>
+                {canStart ? (
+                  <>You can now add more player or start a game !</>
+                ) : (
+                  <>
+                    Add{" "}
+                    <span className="font-bold px-1">
+                      {4 - players.length} more players
+                    </span>{" "}
+                    to be able to start the game
+                  </>
+                )}
+              </div>
+              <Button
+                disabled={!canStart}
+                onClick={() => {
+                  start();
+                }}
+              >
+                Start Game
+              </Button>
             </div>
-            <Button
-              disabled={!canStart}
-              onClick={() => {
-                setGameState(true);
-              }}
-            >
-              Start Game
-            </Button>
           </div>
-        </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+function HistoryEventStart() {
+  const [selectedPlayer, setSelectedPlayer] = useState<number>(0);
+  const players = useGameStore((state) => state.players);
+  const updateHistory = useGameStore((state) => state.updateHistory);
+
+  return (
+    <Card size="compact" className="text-sm">
+      <CardHeader size="compact">
+        <CardTitle size="compact">Round #0</CardTitle>
+      </CardHeader>
+      <CardContent size="compact" className="flex gap-2">
+        <Select
+          onValueChange={(e) => {
+            setSelectedPlayer(parseInt(e));
+          }}
+        >
+          <SelectTrigger className="w-[20rem]">
+            <SelectValue placeholder="Starting player" />
+          </SelectTrigger>
+          <SelectContent>
+            {players.map((player, id) => (
+              <SelectItem key={id} value={`${id}`}>
+                {player.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button size="icon">
+          <Check
+            onClick={() => {
+              updateHistory(0, {
+                title: "Round #0",
+                content: `${
+                  players[selectedPlayer].name
+                } start the first round followed by ${
+                  players[(selectedPlayer + 1) % players.length].name
+                }`,
+              });
+            }}
+            size={16}
+          />
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HistoryItem({ record }: { record: HistoryRecord }) {
+  if (typeof record == "object" && "title" in record) {
+    return (
+      <Card size="compact" className="text-sm">
+        <CardHeader size="compact">
+          <CardTitle size="compact">{record.title}</CardTitle>
+        </CardHeader>
+        <CardContent size="compact" className="flex gap-2">
+          {record.content}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (record == HistoryEventRecord.START) return <HistoryEventStart />;
+}
+
+function GameHistory() {
+  const history = useGameStore((state) => state.history);
+
+  return (
+    <div className="divider-y p-4">
+      {history.map((record, key) => (
+        <HistoryItem key={key} record={record} />
+      ))}
     </div>
   );
 }
@@ -122,6 +244,7 @@ function PlayerItem({ player, id }: { player: Player; id: number }) {
           "disabled:opacity-100": !editMode,
           "border-background": !editMode,
           "shadow-none": !editMode,
+          "disabled:cursor-default": !editMode,
         })}
         value={newName}
         onChange={(e) => {
